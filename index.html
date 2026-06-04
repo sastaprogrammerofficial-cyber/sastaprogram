@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sasta Programmer | Code the Future</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            /* Base Colors */
+            --bg-dark: #050505;
+            --text-light: #e0e0e0;
+            
+            /* Python Theme (Vibrant, Engaging, Cyber-Hacker) */
+            --py-primary: #00ff66;
+            --py-secondary: #0a4d22;
+            --py-glow: rgba(0, 255, 102, 0.4);
+            
+            /* Web Dev Theme (Professional, Sleek, Corporate Sci-Fi) */
+            --wd-primary: #00d4ff;
+            --wd-secondary: #0b2447;
+            --wd-glow: rgba(0, 212, 255, 0.4);
+            
+            /* Current Theme Variables (Controlled by JS) */
+            --theme-primary: var(--py-primary);
+            --theme-secondary: var(--py-secondary);
+            --theme-glow: var(--py-glow);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+            transition: all 0.5s ease-in-out;
+        }
+
+        h1, h2, h3, .brand-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Sci-Fi Background Grid & Orbs */
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: linear-gradient(var(--theme-secondary) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--theme-secondary) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.15;
+            z-index: -2;
+            transition: background-image 0.8s ease;
+        }
+
+        .glow-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            transition: all 1s ease;
+        }
+        .orb-1 { top: -10%; left: -10%; width: 40vw; height: 40vw; background: var(--theme-secondary); opacity: 0.5; }
+        .orb-2 { bottom: -10%; right: -10%; width: 30vw; height: 30vw; background: var(--theme-primary); opacity: 0.15; }
+
+        /* The Custom Slider Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            z-index: 50;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 80px;
+            height: 40px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--py-secondary);
+            transition: .4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border-radius: 40px;
+            border: 2px solid var(--py-primary);
+            box-shadow: 0 0 15px var(--py-glow);
+        }
+        .slider:before {
+            position: absolute;
+            content: "\f3e2"; /* Python icon approx */
+            font-family: "Font Awesome 6 Brands";
+            height: 32px;
+            width: 32px;
+            left: 2px;
+            bottom: 2px;
+            background-color: var(--py-primary);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: .4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--wd-secondary);
+            border-color: var(--wd-primary);
+            box-shadow: 0 0 15px var(--wd-glow);
+        }
+        input:checked + .slider:before {
+            transform: translateX(40px);
+            background-color: var(--wd-primary);
+            content: "\f121"; /* Code icon */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+        }
+
+        .toggle-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: color 0.3s;
+        }
+        .label-py { color: var(--py-primary); text-shadow: 0 0 10px var(--py-glow); }
+        .label-wd { color: #666; }
+        
+        /* State when Web Dev is active */
+        body.webdev-active .label-py { color: #666; text-shadow: none; }
+        body.webdev-active .label-wd { color: var(--wd-primary); text-shadow: 0 0 10px var(--wd-glow); }
+
+        /* View Transitions */
+        .view-section {
+            display: none;
+            opacity: 0;
+            animation: fadeIn 0.6s forwards ease-in-out;
+        }
+        .view-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Buttons styling */
+        .btn-sci-fi {
+            position: relative;
+            padding: 12px 28px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: transparent;
+            color: var(--theme-primary);
+            border: 1px solid var(--theme-primary);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            z-index: 1;
+        }
+        .btn-sci-fi::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: var(--theme-primary);
+            transition: all 0.4s ease;
+            z-index: -1;
+        }
+        .btn-sci-fi:hover::before {
+            left: 0;
+        }
+        .btn-sci-fi:hover {
+            color: #000;
+            box-shadow: 0 0 20px var(--theme-glow);
+        }
+
+        .btn-solid {
+            background: var(--theme-primary);
+            color: #000;
+            border: none;
+            box-shadow: 0 0 15px var(--theme-glow);
+        }
+        .btn-solid::before {
+            background: var(--text-light);
+        }
+
+        /* Cards / Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid var(--theme-glow);
+            border-radius: 16px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 15px var(--theme-glow);
+        }
+
+        /* Scroll Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Text Gradients */
+        .text-gradient {
+            background: linear-gradient(to right, var(--text-light), var(--theme-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Header specifics */
+        header {
+            background: rgba(5, 5, 5, 0.8);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Background Elements -->
+    <div class="bg-grid"></div>
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <!-- Navigation Header -->
+    <header class="fixed w-full top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            
+            <!-- Logo -->
+            <div class="text-2xl font-bold brand-font tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-microchip text-[var(--theme-primary)]"></i>
+                <span class="text-white">Sasta</span>
+                <span class="text-[var(--theme-primary)]" style="text-shadow: 0 0 10px var(--theme-glow);">Programmer</span>
+            </div>
+
+            <!-- The Slider Toggle -->
+            <div class="toggle-container">
+                <span class="toggle-label label-py">Python Academy</span>
+                <label class="switch">
+                    <input type="checkbox" id="mode-toggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label label-wd">Web Dev Studio</span>
+            </div>
+
+            <!-- Nav Actions -->
+            <div class="flex gap-4">
+                <button class="btn-sci-fi text-sm py-2 px-4">Contact Us</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="pt-32 pb-20 container mx-auto px-6 min-h-screen">
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: PYTHON TEACHING (Vibrant, Engaging)-->
+        <!-- ========================================== -->
+        <div id="view-python" class="view-section active">
+            
+            <!-- Hero Section -->
+            <div class="text-center max-w-4xl mx-auto py-16 reveal">
+                <div class="inline-block px-4 py-1 rounded-full border border-[var(--theme-primary)] text-[var(--theme-primary)] text-sm font-semibold mb-6 shadow-[0_0_10px_var(--theme-glow)] bg-[rgba(0,255,102,0.1)]">
+                    <i class="fa-brands fa-python mr-2"></i> Join the Code Matrix
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 text-gradient">
+                    Master Python. <br> Rule the Future.
+                </h1>
+                <p class="text-lg text-gray-400 mb-10 max-w-2xl mx-auto">
+                    Dive into our highly engaging, zero-to-hero Python academy. Learn programming through sci-fi inspired challenges, real-world hacking simulations, and interactive AI modules.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-6">
+                    <button class="btn-sci-fi btn-solid text-lg px-8 py-3"><i class="fa-solid fa-user-plus mr-2"></i> Register Now</button>
+                    <button class="btn-sci-fi text-lg px-8 py-3"><i class="fa-solid fa-right-to-bracket mr-2"></i> Student Login</button>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                <!-- Card 1 -->
+                <div class="glass-card p-8 reveal">
+                    <div class="text-4xl text-[var(--theme-primary)] mb-4"><i class="fa-solid fa-gamepad"></i></div>
+                    <h3 class="text-2xl font-bold mb-3 text-white">Gamified Learning</h3>
+                    <p class="text-gray-400">Forget boring lectures. Level up your skills by solving immersive, story-driven coding puzzles.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="glass-card p-8 reveal" style="transition-delay: 0.1s;">
+                    <div class="text-4xl text-[var(--theme-primary)] mb-4"><i class="fa-solid fa-robot"></i></div>
+                    <h3 class="text-2xl font-bold mb-3 text-white">AI Assistants</h3>
+                    <p class="text-gray-400">Get 24/7 help from our custom AI mentors that debug your code and explain concepts instantly.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="glass-card p-8 reveal" style="transition-delay: 0.2s;">
+                    <div class="text-4xl text-[var(--theme-primary)] mb-4"><i class="fa-solid fa-terminal"></i></div>
+                    <h3 class="text-2xl font-bold mb-3 text-white">Live Terminal</h3>
+                    <p class="text-gray-400">Write, test, and execute Python code directly in your browser with our integrated sci-fi terminal.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: WEB DEVELOPMENT (Professional, Sleek)-->
+        <!-- ========================================== -->
+        <div id="view-webdev" class="view-section">
+            
+            <!-- Hero Section -->
+            <div class="text-center max-w-4xl mx-auto py-16 reveal">
+                <div class="inline-block px-4 py-1 rounded-full border border-[var(--theme-primary)] text-[var(--theme-primary)] text-sm font-semibold mb-6 shadow-[0_0_10px_var(--theme-glow)] bg-[rgba(0,212,255,0.1)]">
+                    <i class="fa-solid fa-code mr-2"></i> Digital Architect Studio
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold mb-6 text-gradient">
+                    Crafting Next-Gen <br> Web Experiences.
+                </h1>
+                <p class="text-lg text-gray-400 mb-10 max-w-2xl mx-auto">
+                    We build sleek, high-performance, and scalable web applications. Elevate your brand with professional engineering and cutting-edge design.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-6">
+                    <button class="btn-sci-fi btn-solid text-lg px-8 py-3"><i class="fa-solid fa-rocket mr-2"></i> Place Order</button>
+                    <button class="btn-sci-fi text-lg px-8 py-3"><i class="fa-solid fa-folder-open mr-2"></i> See Previous Work</button>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+                <!-- Card 1 -->
+                <div class="glass-card p-6 reveal">
+                    <div class="text-3xl text-[var(--theme-primary)] mb-4"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Full-Stack Dev</h3>
+                    <p class="text-sm text-gray-400">Robust backend architectures paired with dynamic, responsive frontends.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="glass-card p-6 reveal" style="transition-delay: 0.1s;">
+                    <div class="text-3xl text-[var(--theme-primary)] mb-4"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Modern UI/UX</h3>
+                    <p class="text-sm text-gray-400">Sleek, intuitive interfaces designed for maximum user engagement and conversion.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="glass-card p-6 reveal" style="transition-delay: 0.2s;">
+                    <div class="text-3xl text-[var(--theme-primary)] mb-4"><i class="fa-solid fa-bolt"></i></div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Performance</h3>
+                    <p class="text-sm text-gray-400">Lightning-fast load times optimized for SEO and core web vitals.</p>
+                </div>
+                <!-- Card 4 -->
+                <div class="glass-card p-6 reveal" style="transition-delay: 0.3s;">
+                    <div class="text-3xl text-[var(--theme-primary)] mb-4"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Secure Coding</h3>
+                    <p class="text-sm text-gray-400">Enterprise-grade security practices to keep your data and users safe.</p>
+                </div>
+            </div>
+            
+            <!-- Tech Stack Banner -->
+            <div class="mt-20 py-10 border-t border-[rgba(255,255,255,0.05)] text-center reveal">
+                <p class="text-gray-500 uppercase tracking-widest text-sm mb-6">Technologies we master</p>
+                <div class="flex flex-wrap justify-center gap-8 text-4xl text-gray-600">
+                    <i class="fa-brands fa-react hover:text-[var(--theme-primary)] transition-colors cursor-pointer"></i>
+                    <i class="fa-brands fa-node-js hover:text-[var(--theme-primary)] transition-colors cursor-pointer"></i>
+                    <i class="fa-brands fa-html5 hover:text-[var(--theme-primary)] transition-colors cursor-pointer"></i>
+                    <i class="fa-brands fa-css3-alt hover:text-[var(--theme-primary)] transition-colors cursor-pointer"></i>
+                    <i class="fa-brands fa-aws hover:text-[var(--theme-primary)] transition-colors cursor-pointer"></i>
+                    <i class="fa-brands fa-docker hover:text-[var(--theme-primary)] transition-colors cursor-pointer"></i>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-[rgba(255,255,255,0.05)] bg-[rgba(0,0,0,0.5)] py-8 mt-10">
+        <div class="container mx-auto px-6 text-center text-gray-500 text-sm">
+            <p>&copy; 2026 Sasta Programmer. All rights reserved. <br> Crafted with passion and lots of coffee.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Interactivity -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1. Theme Toggling Logic ---
+            const toggleInput = document.getElementById('mode-toggle');
+            const viewPython = document.getElementById('view-python');
+            const viewWebDev = document.getElementById('view-webdev');
+            const body = document.body;
+
+            // Function to update CSS Variables for themes
+            const updateTheme = (isWebDev) => {
+                const root = document.documentElement;
+                if (isWebDev) {
+                    body.classList.add('webdev-active');
+                    root.style.setProperty('--theme-primary', 'var(--wd-primary)');
+                    root.style.setProperty('--theme-secondary', 'var(--wd-secondary)');
+                    root.style.setProperty('--theme-glow', 'var(--wd-glow)');
+                    
+                    // Switch Views smoothly
+                    viewPython.classList.remove('active');
+                    setTimeout(() => viewWebDev.classList.add('active'), 50); // slight delay for smooth reflow
+
+                } else {
+                    body.classList.remove('webdev-active');
+                    root.style.setProperty('--theme-primary', 'var(--py-primary)');
+                    root.style.setProperty('--theme-secondary', 'var(--py-secondary)');
+                    root.style.setProperty('--theme-glow', 'var(--py-glow)');
+                    
+                    // Switch Views smoothly
+                    viewWebDev.classList.remove('active');
+                    setTimeout(() => viewPython.classList.add('active'), 50);
+                }
+                
+                // Re-trigger animations for the new view
+                setTimeout(initScrollReveal, 100);
+            };
+
+            // Listen to slider changes
+            toggleInput.addEventListener('change', (e) => {
+                updateTheme(e.target.checked);
+            });
+
+
+            // --- 2. Scroll Reveal Animations ---
+            const initScrollReveal = () => {
+                // Reset visible classes for currently active view
+                document.querySelectorAll('.view-section.active .reveal').forEach(el => {
+                    el.classList.remove('visible');
+                });
+
+                const revealElements = document.querySelectorAll('.view-section.active .reveal');
+                
+                const revealObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target); // Stop observing once revealed
+                        }
+                    });
+                }, {
+                    root: null,
+                    threshold: 0.15, // Trigger when 15% of the element is visible
+                    rootMargin: "0px 0px -50px 0px"
+                });
+
+                revealElements.forEach(el => revealObserver.observe(el));
+            };
+
+            // Initial trigger
+            initScrollReveal();
+
+            // --- 3. Prevent Form Submissions (Since no backend requested) ---
+            document.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Add a tiny click effect
+                    btn.style.transform = "scale(0.95)";
+                    setTimeout(() => btn.style.transform = "scale(1)", 150);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
